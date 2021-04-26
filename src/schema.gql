@@ -1,0 +1,11 @@
+type User {
+  id: String!
+  name: String!
+}
+type Query {
+  a_user_by_id(id: ID!): User!
+  b_user_by_id(id: ID!): User!
+  c_user_by_id(id: ID!): User!
+  d_user_by_id(id: ID!): User!
+  me: User!
+}
