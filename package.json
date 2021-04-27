@@ -1,8 +1,8 @@
 {
   "name": "rest2graphql",
   "version": "0.1.0",
-  "description": "a tool to transform restful api to graphql api",
-  "main": "index.js",
+  "description": "a cli tool to transform restful-api to graphql-api with one js config file",
+  "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -21,29 +21,23 @@
   },
   "homepage": "https://github.com/xialvjun/rest2graphql#readme",
   "dependencies": {
-    "@endemolshinegroup/cosmiconfig-typescript-loader": "^3.0.2",
     "apollo-server-koa": "^2.23.0",
     "axios": "^0.21.1",
     "axios-logger": "^2.5.0",
     "cosmiconfig": "^7.0.0",
     "ejs": "^3.1.6",
-    "got": "^11.8.2",
     "graphql": "^15.5.0",
     "http-proxy-middleware": "^1.1.2",
     "koa": "^2.13.1",
     "koa-connect": "^2.1.0",
     "koa-send": "^5.0.1",
-    "lodash": "^4.17.21",
-    "lodash-es": "^4.17.21",
-    "node-fetch": "^3.0.0-beta.9",
-    "path-to-regexp": "^6.2.0",
-    "r2": "^2.0.1",
-    "zod": "^1.11.13"
+    "lodash-es": "^4.17.21"
   },
   "devDependencies": {
     "@types/ejs": "^3.0.6",
     "@types/koa": "^2.13.1",
     "@types/koa-send": "^4.1.2",
-    "@types/lodash-es": "^4.17.4"
+    "@types/lodash-es": "^4.17.4",
+    "farrow": "^1.10.1"
   }
 }
