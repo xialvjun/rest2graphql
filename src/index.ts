@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 // import * as z from "zod";
 import { accessSync, constants, readFileSync } from "fs";
 import { cosmiconfigSync } from "cosmiconfig";
@@ -75,8 +77,14 @@ if (config.axios) {
 if (config.graphql) {
   let apollo_config = cloneDeepWith(config.graphql, (v, k, o, s) => {
     if (s?.size === 1) {
-      if (k === "typeDefs" && typeof v === "string") {
-        return getTypeDefs(v);
+      if (k === "typeDefs") {
+        if (Array.isArray(v)) {
+          return v.map(it => (typeof it === "string" ? getTypeDefs(it) : it));
+        }
+        if (typeof v === "string") {
+          return getTypeDefs(v);
+        }
+        return v;
       }
       if (k === "resolvers") {
         return cloneDeepWith(v, (v, k, o, s) => {

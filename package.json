@@ -1,9 +1,14 @@
 {
   "name": "rest2graphql",
   "version": "0.1.0",
-  "description": "a cli tool to transform restful-api to graphql-api with one js config file",
+  "description": "A cli tool to transform *RESTful API* to *GraphQL* with one js config file.",
   "main": "dist/index.js",
+  "bin": {
+    "rest2graphql": "dist/index.js",
+    "r2g": "dist/index.js"
+  },
   "scripts": {
+    "build": "farrow build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

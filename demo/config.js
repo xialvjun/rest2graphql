@@ -1,9 +1,13 @@
-/** @type {import('../../../src/index').Config} */
+/** @type {import('../src/index').Config} */
 module.exports = {
   port: 3000,
-  proxy: [["/api", { target: "http://127.0.0.1:3001" }]],
+  serve: {
+    root: 'demo',
+    index: 'index.html',
+  },
+  proxy: [["/api", { target: "http://127.0.0.1:4000", pathRewrite: { '^/api': '' } }]],
   axios: {
-    logger: {},
+    // logger: {},
     interceptors: {
       cookie: (axios, ctx) => {
         axios.interceptors.request.use(config => {
@@ -38,11 +42,18 @@ module.exports = {
         interceptors: ["cookie"],
       },
     },
+    // `apollo-server-koa` `ApolloServer.applyMiddleware` options
+    serverRegistration: {
+      path: '/graphql',
+      cors: true,
+    },
     resolvers: {
       Query: {
         user: {
           url: "/get_user_by_id",
-          params: { id: "js:args.id" },
+          method: 'post',
+          params: { id: "js:args.id", a: 'abc<%= args.id %>defg' },
+          data: { id: "js:args.id", a: 'abc<%= args.id %>defg' },
         },
       },
     },

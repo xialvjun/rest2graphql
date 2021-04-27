@@ -1,5 +1,5 @@
 module.exports = require('farrow').createFarrowConfig({
   server: {
-    autoExternal: false,
+    // autoExternal: false,
   }
 })
