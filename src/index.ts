@@ -89,9 +89,9 @@ if (config.graphql) {
       if (k === "resolvers") {
         return cloneDeepWith(v, (v, k, o, s) => {
           if (s?.size === 2 && typeof v.url === "string") {
-            let request: AxiosRequest = v;
+            let { res: res_config, ...req_config }: AxiosRequest = v;
             let preset: AxiosPreset | undefined =
-              request.preset === false ? undefined : config.graphql!.axiosPresets?.[request.preset || "default"];
+              req_config.preset === false ? undefined : config.graphql!.axiosPresets?.[req_config.preset || "default"];
             let interceptors =
               preset?.interceptors?.map(it => {
                 const interceptor = config.axios?.interceptors?.[it];
@@ -106,7 +106,7 @@ if (config.graphql) {
               interceptors.forEach(it => (it as Function)(axios_ins, ctx));
               const req_env = { source, args, ctx, info };
               const res = await axios_ins(
-                cloneDeepWith(request, (v, k, o, s) => {
+                cloneDeepWith(req_config, (v, k, o, s) => {
                   if (typeof v === "string") {
                     if (v.startsWith("js:")) {
                       return geval(`({ source, args, ctx, info }) => (${v.slice(3)})`)(req_env);
@@ -118,13 +118,17 @@ if (config.graphql) {
               const res_env = { res, data: res.data };
               const { data, error } = cloneDeepWith(
                 {
-                  data: request.res?.data ?? preset?.res?.data ?? "js:data.data",
-                  error: request.res?.error ?? preset?.res?.error ?? "js:data.error",
+                  data: res_config?.data ?? preset?.res?.data ?? "js:data.data",
+                  error: res_config?.error ?? preset?.res?.error ?? "js:data.error",
                 },
                 (v, k, o, s) => {
                   if (typeof v === "string") {
                     if (v.startsWith("js:")) {
-                      return geval(`({ res, data }) => (${v.slice(3)})`)(res_env);
+                      const result = geval(`({ res, data }) => (${v.slice(3)})`)(res_env);
+                      // mustn't return undefined even if js code is evaluated to undefined
+                      // because cloneDeepWith treat undefined as no change
+                      // and data shouldn't return undefined too
+                      return result === undefined ? null : result;
                     }
                     return ejs.render(v, res_env);
                   }
@@ -140,9 +144,11 @@ if (config.graphql) {
       }
     }
   });
-  const axios_ins = axios.create();
-  addAxiosLogger(axios_ins);
-  apollo_config.context = ({ ctx }: any) => ({ ctx, axios: axios_ins, interceptors: { ...config.axios?.interceptors } });
+  apollo_config.context = ({ ctx }: any) => {
+    const axios_ins = axios.create();
+    addAxiosLogger(axios_ins);
+    return { ctx, axios: axios_ins, interceptors: { ...config.axios?.interceptors } };
+  };
   const apollo_server = new ApolloServer(apollo_config);
   apollo_server.applyMiddleware({ ...apollo_config.serverRegistration, app });
 }

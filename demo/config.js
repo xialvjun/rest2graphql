@@ -54,6 +54,10 @@ module.exports = {
           method: 'post',
           params: { id: "js:args.id", a: 'abc<%= args.id %>defg' },
           data: { id: "js:args.id", a: 'abc<%= args.id %>defg' },
+          res: {
+            data: "js:data.data",
+            error: "js:data.error || (data.message==='ok' ? '' : data.message)",
+          }
         },
       },
     },
