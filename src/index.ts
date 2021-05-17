@@ -2,6 +2,7 @@
 
 // import * as z from "zod";
 import { accessSync, constants, readFileSync } from "fs";
+import { resolve, dirname } from "path";
 import { cosmiconfigSync } from "cosmiconfig";
 import ejs from "ejs";
 import koa from "koa";
@@ -57,8 +58,8 @@ export type Config = {
 const geval = eval;
 
 const explorer = cosmiconfigSync("rest-graphql");
-const result = process.argv[2] ? explorer.load(process.argv[2]) : explorer.search();
-const config: Config = result?.config;
+const result = process.argv[2] ? explorer.load(process.argv[2])! : explorer.search()!;
+const config: Config = result.config;
 
 const app = new koa();
 config.debug ??= process.env.NODE_ENV !== "production";
@@ -186,8 +187,9 @@ app.listen(config.port, () => {
 
 function getTypeDefs(typeDefs: string) {
   try {
-    accessSync(typeDefs, constants.R_OK);
-    return readFileSync(typeDefs, "utf8");
+    const filepath = resolve(dirname(result.filepath), typeDefs);
+    accessSync(filepath, constants.R_OK);
+    return readFileSync(filepath, "utf8");
   } catch (error) {
     return typeDefs;
   }
@@ -201,7 +203,6 @@ function addAxiosLogger(axios: AxiosInstance) {
 }
 
 function cloneDeepWith(obj: any, customizer: (v: any, k: PropertyKey | undefined, o: any, s: { size: number }) => any) {
-  return recursive(obj, undefined, undefined, { size: 0 });
   function recursive(v: any, k: PropertyKey | undefined, o: any, s: { size: number }): any {
     const result = customizer(v, k, o, s);
     if (result !== undefined) {
@@ -215,4 +216,29 @@ function cloneDeepWith(obj: any, customizer: (v: any, k: PropertyKey | undefined
     }
     return Object.fromEntries(Object.entries(v).map(([k, f]) => [k, recursive(f, k, v, { size: s.size + 1 })]));
   }
+  return recursive(obj, undefined, undefined, { size: 0 });
 }
+
+// used to merge preset and axios_request_config to support js expression in preset, so we can have write res expression in preset
+// but it seems we needn't it because we have interceptors. we should leave preset clean.
+// function merge<T>(...args: T[]): T {
+//   function recursive(a: any, b: any) {
+//     if (typeof b !== "object") {
+//       return b ?? a;
+//     }
+//     if (Array.isArray(b)) {
+//       if (Array.isArray(a)) {
+//         return a.concat(b);
+//       }
+//       return b;
+//     }
+//     return Object.keys(b).reduce(
+//       (acc, cv) => {
+//         acc[cv] = recursive(a?.[cv], b[cv]);
+//         return acc;
+//       },
+//       { ...a },
+//     );
+//   }
+//   return args.reduce((acc, cv) => recursive(acc, cv), undefined!);
+// }

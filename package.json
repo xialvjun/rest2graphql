@@ -1,6 +1,6 @@
 {
   "name": "rest2graphql",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A cli tool to transform *RESTful API* to *GraphQL* with one js config file.",
   "main": "dist/index.js",
   "bin": {
